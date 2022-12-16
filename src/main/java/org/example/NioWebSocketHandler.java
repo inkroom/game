@@ -23,7 +23,7 @@ import static io.netty.handler.codec.http.HttpUtil.isKeepAlive;
 public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
 
     private WebSocketServerHandshaker handshaker;
-    private List<Channel> channels = new LinkedList<>();
+    private static List<Channel> channels = new LinkedList<>();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -42,6 +42,7 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
         System.out.println("添加连接");
         //添加连接
         channels.add(ctx.channel());
+
     }
 
     @Override
@@ -49,6 +50,9 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
         //断开连接
         channels.remove(ctx.channel());
         System.out.println("关闭连接");
+        for (int i = 0; i < channels.size(); i++) {
+            channels.get(i).writeAndFlush(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
+        }
     }
 
     @Override
@@ -76,12 +80,10 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
         // 返回应答消息
         String request = ((TextWebSocketFrame) frame).text();
         System.out.println("服务端收到：" + request);
-        TextWebSocketFrame tws = new TextWebSocketFrame(new Date().toString()
-                + ctx.channel().id() + "：" + request);
         // 群发
 
         for (int i = 0; i < channels.size(); i++) {
-            channels.get(i).write(tws);
+            channels.get(i).write(new TextWebSocketFrame(request));
         }
 
     }
@@ -105,7 +107,15 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
             WebSocketServerHandshakerFactory
                     .sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            handshaker.handshake(ctx.channel(), req);
+            handshaker.handshake(ctx.channel(), req).addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    for (int i = 0; i < channels.size(); i++) {
+                        System.out.println("入场通知 "+i);
+                        channels.get(i).writeAndFlush(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
+                    }
+                }
+            });
         }
     }
     /**
@@ -125,5 +135,10 @@ public class NioWebSocketHandler extends SimpleChannelInboundHandler<Object> {
         if (!isKeepAlive(req) || res.status().code() != 200) {
             f.addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        cause.printStackTrace();
     }
 }

@@ -41,17 +41,25 @@ public class TextWebSocketHandler extends SimpleChannelInboundHandler<TextWebSoc
     }
 
     @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        super.channelRegistered(ctx);
+    }
+
+    @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
         channels.add(ctx.channel());
         System.out.println("添加连接  当前 一共= " + channels.size());
-//        ctx.channel().write(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
+//        ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         channels.remove(ctx.channel());
         System.out.println("移除连接  当前 一共= " + channels.size());
+        for (int i = 0; i < channels.size(); i++) {
+            channels.get(i).writeAndFlush(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
+        }
 //        ctx.channel().writeAndFlush(new TextWebSocketFrame("{\"type\":\"up\",\"count\":" + channels.size() + "}"));
     }
 
