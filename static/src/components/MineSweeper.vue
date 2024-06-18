@@ -13,7 +13,8 @@
 
           <span v-else-if="mines[(i - 1) * width + (j - 1)] === -3" class="iconfont flag">&#xe778;</span>
           <span v-else-if="mines[(i - 1) * width + (j - 1)] === 0" class="iconfont"></span>
-          <span v-else-if="mines[(i - 1) * width + (j - 1)] != -1" class="iconfont number">{{mines[(i - 1) * width + (j - 1)]}}</span>
+          <span v-else-if="mines[(i - 1) * width + (j - 1)] != -1"
+                class="iconfont number">{{ mines[(i - 1) * width + (j - 1)] }}</span>
 
         </div>
       </div>
@@ -34,8 +35,8 @@
 
 <script setup>
 import loading from './loading.vue';
-import { defineProps,  ref, computed, watch, onUnmounted,nextTick } from 'vue';
-import { useNotification,useDialog } from 'naive-ui'
+import {defineProps, ref, computed, watch, onUnmounted, nextTick} from 'vue';
+import {useNotification, useDialog} from 'naive-ui'
 
 import Mine from '../util/mine.js';
 
@@ -68,15 +69,13 @@ const count = ref(1);
 let mine = null;
 
 
-
-
 console.log("start");
 var ws;
 // var ws = new WebSocket("ws://127.0.0.1:22293/ws");
 if (process.env.NODE_ENV == 'production') {
   ws = new WebSocket("ws://" + location.host + "/sw");
 } else {
-  ws = new WebSocket("ws://192.168.150.96:38293/sw");
+  ws = new WebSocket("ws://127.0.0.1:25895/sw");
 }
 // var ws = new WebSocket("ws://" + location.host + "/sw");
 
@@ -123,23 +122,34 @@ ws.onmessage = (e) => {
     count.value = json.count;
   }
 };
-// 主动关闭
 const activeClose = ref(false);
 
 ws.onclose = (e) => {
-  console.log("close");
-  if(activeClose.value) return;
   //当客户端收到服务端发送的关闭连接请求时，触发onclose事件
-  dialog.error({
-    title: '连接中断，刷新页面',
-    content: '连接中断，刷新页面',
-    positiveText: 'ok',
-    onPositiveClick: () => {
-    }
-  })
+  console.log("close");
+  if (!activeClose.value)
+    dialog.error({
+      title: '连接中断，刷新页面',
+      content: '连接中断，刷新页面',
+      positiveText: 'ok',
+      onPositiveClick: () => {
+      }
+    })
+  activeClose.value = false;
   clearInterval(heartBeat.value);
   heartBeat.value = -1;
 };
+
+
+onUnmounted(() => {
+  activeClose.value = true;
+  console.log('onUnmounted')
+  if (ws != null) {
+    ws.close();
+  }
+})
+
+
 ws.onerror = (e) => {
   //如果出现连接、处理、接收、发送数据失败的时候触发onerror事件
   console.log(e);
@@ -158,34 +168,37 @@ window.sw = ws;
 
 // heartBeat.value = setInterval(() => {
 //     window.sw.send(JSON.stringify({
-//         type: "ping",
+//         type: "ping", 
 //     }));
 // }, 1000);
 
 function reStart() {
-  mines.value = mines.value.map(_=>-1);
+  mines.value = mines.value.map(_ => -1);
   init(props.width, props.height, mineCount.value);
 };
 
-function onOpen(index,number){
-  console.log('onOpen',index,number);
-  mines.value[index ]=number;
+function onOpen(index, number) {
+  console.log('onOpen', index, number);
+  mines.value[index] = number;
 }
-function onMine(index){
-  console.log('onMine',index);
-  mines.value[ index ]=-2;
+
+function onMine(index) {
+  console.log('onMine', index);
+  mines.value[index] = -2;
 }
-function onFlag(index,type){
-  console.log('onFlag',index,type);
-  if(type === 1){
-    selectedMineCount.value--;
-    mines.value[ index ] = -3;
-  }else{
+
+function onFlag(index, type) {
+  console.log('onFlag', index, type);
+  if (type == 1) {
     selectedMineCount.value++;
-    mines.value[ index ] = -1;
+    mines.value[index] = -3;
+  } else {
+    selectedMineCount.value--;
+    mines.value[index] = -1;
   }
 }
-function onSuccess(){
+
+function onSuccess() {
   isEnd.value = true;
   dialog.error({
     title: 'win',
@@ -196,7 +209,8 @@ function onSuccess(){
   })
 
 }
-function onFail(){
+
+function onFail() {
   isEnd.value = true;
   console.log('onFail')
   dialog.error({
@@ -208,10 +222,11 @@ function onFail(){
   })
 
 }
+
 function init(width, height, mineCount) {
   isEnd.value = false;
-  if(mine == null){
-    mine = new Mine(width,height,mineCount);
+  if (mine == null) {
+    mine = new Mine(width, height, mineCount);
     mine.onOpen = onOpen;
     mine.onMine = onMine;
     mine.onFlag = onFlag;
@@ -220,8 +235,6 @@ function init(width, height, mineCount) {
   }
   mine.setMineCount(mineCount);
   mine.init();
-
-
 
 
   window.sw.send(
@@ -243,16 +256,15 @@ function init(width, height, mineCount) {
   };
 
 
-
   // 随机开局
 
   let m = mine.getMines();
-  console.log('ope ran',m,m.length);
-  for(;;){
-    let ind = r(0,m.length);
+  console.log('ope ran', m, m.length);
+  for (; ;) {
+    let ind = r(0, m.length);
     let ran = m[ind];
-    console.log('ope ran 2 ',m,m.length,ran);
-    if(ran===0){
+    console.log('ope ran 2 ', m, m.length, ran);
+    if (ran === 0) {
       handleLeftClick(ind);
       break;
     }
@@ -262,6 +274,7 @@ function init(width, height, mineCount) {
   // handleLeftClick(r(0, width), r(0, height));
   // handleLeftClick(0,0)
 };
+
 function initReal(width, height, new_mines) {
   // props.width = json.width;
   // // props.height = json.height;
@@ -269,42 +282,40 @@ function initReal(width, height, new_mines) {
   // markStatus.value = new Array(width * height).fill(0);
   // selectedMineCount.value = 0;
   // console.log("initReal", openStatus.value, markStatus.value);
-  if(mine != null){
+  if (mine != null) {
     mine.build(new_mines);
   }
-  for(let i =0 ;i<width * height;i++){
-    mines.value.push(-1);
-  }
+  mines.value = Array(width * height).fill(-1);
+  // for(let i =0 ;i<width * height;i++){
+  //     mines.value.push(-1);
+  // }
 };
+
 function handleLeftClick(index) {
   window.sw.send(JSON.stringify({
-    type: "handleLeftClick",index
+    type: "handleLeftClick", index
   }));
 };
+
 function handleLeftClickReal(index) {
   if (isEnd.value) {
     return;
   }
-  mine.click(index,1);
+  mine.click(index, 1);
 };
+
 function handleRightClick(index) {
   window.sw.send(JSON.stringify({
-    type: "handleRightClick",index
+    type: "handleRightClick", index
   }));
 };
+
 function handleRightClickReal(index) {
   if (isEnd.value) {
     return;
   }
-  mine.click(index,2);
+  mine.click(index, 2);
 };
-
-onUnmounted(()=>{
-  if(ws!=null){
-    activeClose.value = true;
-    ws.close();
-  }
-});
 
 </script>
 
@@ -346,9 +357,8 @@ onUnmounted(()=>{
     -moz-user-select: none;
     -ms-user-select: none;
 
-    &.is-open{
+    &.is-open {
       background-color: #dededc;
-      cursor: default;
     }
   }
 
@@ -362,7 +372,7 @@ onUnmounted(()=>{
     color: black;
   }
 
-  .panel-container>div {
+  .panel-container > div {
     width: 120px;
     display: inline-block;
   }

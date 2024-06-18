@@ -13,9 +13,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -55,3 +54,8 @@ jobs:
           platforms: |
             linux/amd64,
             linux/arm64
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create --target rust ${{ steps.date.outputs.date_tag }}
