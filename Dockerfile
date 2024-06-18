@@ -7,7 +7,7 @@ WORKDIR /
 RUN rm -rf /app && cargo new app
 COPY ./Cargo.toml /app/
 WORKDIR /app
-RUN cargo build --release --target=$(arch)-unknown-linux-musl && rm -rf src/main.rs && rm -rf /app/target/$(arch)-unknown-linux-musl/release/deps/app-* 
+RUN cargo build --release -vv --target=$(arch)-unknown-linux-musl && rm -rf src/main.rs && rm -rf /app/target/$(arch)-unknown-linux-musl/release/deps/app-* 
 
 COPY . /app
 RUN rm -rf static
