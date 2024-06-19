@@ -46,7 +46,7 @@ async fn main() {
 
 #[handler]
 async fn sudoku_new(req: &mut Request, res: &mut Response) -> Result<(), StatusError> {
-    let response = minreq::get("https://sudoku.com/api/level/expert?mode=killer")
+    let response = tinyget::get("https://sudoku.com/api/level/expert?mode=killer")
         .with_header("Referer", "https://sudoku.com/zh/killer/zhuanjia/")
         .with_header(
             "User-Agent",
