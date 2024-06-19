@@ -58,4 +58,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create --target rust ${{ steps.date.outputs.date_tag }}
+          gh release create --target master ${{ steps.date.outputs.date_tag }}
