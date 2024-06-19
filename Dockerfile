@@ -14,7 +14,10 @@ RUN rm -rf static
 COPY --from=vue /vue/dist /app/static
 RUN cargo build --release -vv --target=$(arch)-unknown-linux-musl && mv target/$(arch)-unknown-linux-musl/release/app target/app && chmod +x target/app
 
-FROM alpine
+
+FROM scratch
+COPY --from=rust /etc/ssl /etc/ssl
+COPY --from=rust /usr/share/ca-certificates /usr/share/ca-certificates
 COPY --from=rust /app/target/app /app
 
 EXPOSE 25895
