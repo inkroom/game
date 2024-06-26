@@ -14,3 +14,8 @@
 
 整体是个rust 项目，其中 static 是vue前端项目，同时在构建后也是静态文件目录，具体需要参见[Dockerfile](Dockerfile)
 
+## 运行
+
+```shell
+docker run -it --rm -p 25895:25895 --name game ghcr.io/inkroom/game
+```
