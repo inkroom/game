@@ -3,3 +3,5 @@ target/
 out/
 .idea/
 .eclipse/
+node_modules/
+static/node_modules/

@@ -2,7 +2,7 @@ FROM node:18.17.0 as vue
 COPY static /vue
 RUN cd vue && npm i && npm run build
 
-FROM ghcr.io/inkroomtemp/rust_musl_build as rust
+FROM ghcr.io/inkroomtemp/rust_musl_build:1.79.0 as rust
 WORKDIR /
 RUN rm -rf /app && cargo new app
 COPY ./Cargo.toml /app/

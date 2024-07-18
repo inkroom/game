@@ -11,8 +11,8 @@ export default defineConfig({
   plugins: [vue()],
   server:{
     proxy:{
-      "/sw":{
-        target:"http://192.168.150.96:5895/sw"
+      "/sudoku/new":{
+        target:"http://127.0.0.1:25895/"
       }
     }
   }

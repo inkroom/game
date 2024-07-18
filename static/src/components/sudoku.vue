@@ -8,160 +8,26 @@ const props = defineProps({
   size: { type: Number, default: 450 }
 });
 let saved = localStorage.getItem('data');
-// let sd = saved != null ? JSON.parse(saved) : { select: 1, noting: false, number: [], toBeSelected: [0, 0, 0, 0, 0, 0, 0, 0, 0], solution: "153276984964138257782945613649751832375482196821693745437829561518367429296514378".split("").map(s=>parseInt(s)), "cages": [
-// [
-//             0,
-//             9,
-//             18,
-//             27
-//         ],
-//         [
-//             45,
-//             46,
-//             54
-//         ],
-//         [
-//             1
-//         ],
-//         [
-//             19,
-//             20,
-//             29
-//         ],
-//         [
-//             28,
-//             36,
-//             37
-//         ],
-//         [
-//             55,
-//             56
-//         ],
-//         [
-//             73,
-//             74
-//         ],
-//         [
-//             10,
-//             11
-//         ],
-//         [
-//             38,
-//             47
-//         ],
-//         [
-//             63,
-//             64,
-//             65,
-//             72
-//         ],
-//         [
-//             2,
-//             3
-//         ],
-//         [
-//             12,
-//             21,
-//             30,
-//             31
-//         ],
-//         [
-//             57,
-//             66,
-//             67
-//         ],
-//         [
-//             22,
-//             23
-//         ],
-//         [
-//             39,
-//             40
-//         ],
-//         [
-//             48,
-//             49,
-//             58
-//         ],
-//         [
-//             75,
-//             76
-//         ],
-//         [
-//             4,
-//             5
-//         ],
-//         [
-//             13,
-//             14
-//         ],
-//         [
-//             32,
-//             41
-//         ],
-//         [
-//             50,
-//             59,
-//             68,
-//             77
-//         ],
-//         [
-//             6,
-//             7
-//         ],
-//         [
-//             15,
-//             24
-//         ],
-//         [
-//             33,
-//             42
-//         ],
-//         [
-//             51,
-//             60,
-//             61
-//         ],
-//         [
-//             69,
-//             78
-//         ],
-//         [
-//             16,
-//             17
-//         ],
-//         [
-//             43,
-//             44,
-//             52
-//         ],
-//         [
-//             70,
-//             79
-//         ],
-//         [
-//             8
-//         ],
-//         [
-//             25,
-//             26
-//         ],
-//         [
-//             34,
-//             35
-//         ],
-//         [
-//             53,
-//             62
-//         ],
-//         [
-//             71,
-//             80
-//         ]] }
-
-let sd = saved != null ? JSON.parse(saved) : newGame();
-
-const data = ref(sd);
+let data;
+if (saved != null && saved != '') {
+  data = ref(JSON.parse(saved));
+} else {
+  data = ref({
+    cages: [],
+    select: 1,
+    noting: false,
+    toBeSelected: Array(9).fill(0),
+    number: Array(81).fill({
+      type: 'null', // 状态，null 默认，什么都没有。select设置了数字，note标记
+      value: null,
+      notes: [],
+      editable: true,
+      mistake: false
+    })
+  });
+  newGame(true);
+}
+// const data = ref(sd);
 const margin = 3;// 四周边距
 const normalizedSize = computed(() => props.size + margin * 2)
 
@@ -177,16 +43,6 @@ const color = {
   dashed: 'black',//虚线颜色
 }
 
-watch(data, (n, o) => {
-  localStorage.setItem('data', JSON.stringify(data.value));
-}, { deep: true })
-
-watch(() => data.value.select, (n, o) => {
-
-  toBeSelected(n);
-
-
-})
 /**
  * 获取九宫格内下标
  * @param {*} index 下标
@@ -340,7 +196,7 @@ function drawCages(ctx, array, sum) {
   ctx.textAlign = 'left'
   ctx.textBaseline = "top"
   ctx.fillStyle = color.noteNumberText;
-  ctx.clearRect(array[0] % 9 * boxSize + margin + 4, Math.floor(array[0] / 9) * boxSize + margin + 4, sum.toString().length * 6, 10)
+  ctx.clearRect(array[0] % 9 * boxSize + margin + 4, Math.floor(array[0] / 9) * boxSize + margin + 4, sum.toString().length * 6.8, 10)
   // ctx.fillRect(array[0] % 9 * boxSize + margin + 4, Math.floor(array[0] / 9) * boxSize + margin + 4, 2,2 )
 
   ctx.fillText(sum, array[0] % 9 * boxSize + margin + dashedMargin * 0.5, Math.floor(array[0] / 9) * boxSize + margin + dashedMargin * 0.5);
@@ -463,9 +319,9 @@ function drawNumber(ctx) {
     let col = Math.floor(i / 9);
     // 首先清空
     ctx.clearRect(row * boxSize + margin + dashedMargin * 1.5 + numberWidth,
-        col * boxSize + margin + dashedMargin * 1.5,
-        boxSize - dashedMargin * 3 - numberWidth,
-        boxSize - dashedMargin * 3);
+      col * boxSize + margin + dashedMargin * 1.5,
+      boxSize - dashedMargin * 3 - numberWidth,
+      boxSize - dashedMargin * 3);
 
     if (number[i].type == 'null') {
     } else if (number[i].type == 'select') {
@@ -496,8 +352,8 @@ function drawNumber(ctx) {
 
         //
         ctx.fillText(number[i].notes[j],
-            row * boxSize + margin + dashedMargin + (ncol * 2 + 1) * numberWidth,
-            col * boxSize + margin + dashedMargin + (nrow * 2 + 1) * numberWidth + 1);
+          row * boxSize + margin + dashedMargin + (ncol * 2 + 1) * numberWidth,
+          col * boxSize + margin + dashedMargin + (nrow * 2 + 1) * numberWidth + 1);
 
 
 
@@ -541,7 +397,7 @@ function check() {
 
   function flag(v) {
     // 不知道为什么 for in 只获取一个key就结束循环了，只能换种逻辑
-    Object.keys(v).forEach(key=>{
+    Object.keys(v).forEach(key => {
       const element = v[key];
       if (element.length <= 1) return;
       element.forEach(s => {
@@ -729,9 +585,9 @@ function press(key) {
       refreshHighlight();
 
       if (checkFinish()) {
-        setTimeout(()=>{
+        setTimeout(() => {
           alert('游戏结束');
-        },100)
+        }, 100)
 
       }
 
@@ -751,7 +607,7 @@ function press(key) {
     // 右
     n = data.value.select + 1;
   }
-  if (n && n >= 0 && n <= 80) {
+  if (n !=null && n >= 0 && n <= 80) {
     data.value.select = n;
     refreshHighlight();
   }
@@ -812,31 +668,45 @@ onUnmounted(() => {
 });
 
 
-function newGame(){
+function newGame(first) {
   ajax.get('/sudoku/new')
-      .then(JSON.parse)
-      .then(res=>{
-        console.log(res);
-        delete res['mission'];
-        delete res['id'];
-        delete res['win_rate'];
-        res.solution = res.solution.split("").map(s=>parseInt(s));
+    .then(JSON.parse)
+    .then(res => {
+      console.log(res);
+      delete res['mission'];
+      delete res['id'];
+      delete res['win_rate'];
+      res.solution = res.solution.split("").map(s => parseInt(s));
 
-        data.value = Object.assign(res,{
-          select:1,
-          noting:false,
-          toBeSelected: Array(9).fill(0),
-          number:Array(81).fill({
-            type: 'null', // 状态，null 默认，什么都没有。select设置了数字，note标记
-            value: null,
-            notes: [],
-            editable: true,
-            mistake: false
-          })
+      data.value = Object.assign(res, {
+        select: 1,
+        noting: false,
+        toBeSelected: Array(9).fill(0),
+        number: Array(81).fill({
+          type: 'null', // 状态，null 默认，什么都没有。select设置了数字，note标记
+          value: null,
+          notes: [],
+          editable: true,
+          mistake: false
         })
-        refreshBorder();
-        refreshHighlight();
       })
+      if (first) {
+
+        watch(data, (n, o) => {
+          localStorage.setItem('data', JSON.stringify(data.value));
+        }, { deep: true })
+
+        watch(() => data.value.select, (n, o) => {
+
+          toBeSelected(n);
+
+
+        })
+      }
+
+      refreshBorder();
+      refreshHighlight();
+    })
 }
 
 </script>
@@ -850,7 +720,7 @@ function newGame(){
     <button @click="newGame">new</button>
     <button @click="press('0')">{{ data.noting ? 'on' : 'off' }}</button>
     <button @click="press(index + 1 + '')" v-for="(item, index) in data.toBeSelected" :key="index" :disabled="item >= 9"
-            :class="item >= 9 ? 'disable' : ''">{{ index + 1 }}</button>
+      :class="item >= 9 ? 'disable' : ''">{{ index + 1 }}</button>
   </div>
 </template>
 <style lang="less">
@@ -866,8 +736,9 @@ function newGame(){
   }
 
 }
-.number{
-  button{
+
+.number {
+  button {
     width: 50px;
   }
 }
