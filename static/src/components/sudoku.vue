@@ -12,6 +12,7 @@ let saved = localStorage.getItem('data');
 let data;
 if (saved != null && saved != '') {
   data = ref(JSON.parse(saved));
+  initWatch();
 } else {
   data = ref({
     cages: [],
@@ -532,6 +533,17 @@ function toBeSelected(n) {
       data.value.toBeSelected[i] = 9;
     }
   }
+  // 在某个数字笼中，不能超过数字笼的值
+  let s = data.value.cages.findIndex(s=>s.indexOf(n)>-1);
+  if(s!=-1){
+    let sum = 0;
+    data.value.cages[s].forEach(m => sum += data.value.solution[m])
+    for(let i = 0;i<data.value.toBeSelected.length;i++){
+      if(i + 1 > sum){
+        data.value.toBeSelected[i]=9;
+      }
+    }
+  }
 }
 
 /**
@@ -583,7 +595,7 @@ function press(key) {
           checkError(data.value.select, n);
         }
       }
-      toBeSelected(data.value.select);
+      
       check()
 
       refreshBorder();
@@ -682,7 +694,16 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keydown', keydownEvent);
 });
+function initWatch(){
 
+  watch(data, (n, o) => {
+    localStorage.setItem('data', JSON.stringify(data.value));
+  }, { deep: true })
+
+  watch(() => data.value.select, (n, o) => {
+    toBeSelected(n);
+  })
+}
 
 function newGame(first) {
   ajax.get('/sudoku/new')
@@ -707,17 +728,7 @@ function newGame(first) {
         }))
       })
       if (first) {
-
-        watch(data, (n, o) => {
-          localStorage.setItem('data', JSON.stringify(data.value));
-        }, { deep: true })
-
-        watch(() => data.value.select, (n, o) => {
-
-          toBeSelected(n);
-
-
-        })
+        initWatch();
       }
 
       refreshBorder();
