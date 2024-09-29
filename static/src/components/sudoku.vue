@@ -632,9 +632,6 @@ function press(key) {
 
 
 function keydownEvent(e) {
-  if(e.target.tagName!='INPUT'){
-    press(e.key);
-  }
   if(e.keyCode==110){
     // .
     setTimeout(()=>{
@@ -644,6 +641,35 @@ function keydownEvent(e) {
       calu.value='';
     },10);
   }
+
+  if(e.target.tagName!='INPUT'){
+    press(e.key);
+    return;
+  }
+  let key = e.key;
+  let n = null;
+  if (key == 'ArrowUp') {
+    n = data.value.select - 9;
+    // 上
+    document.getElementsByTagName('input')[0].blur();
+  } else if (key == 'ArrowDown') {
+    n = data.value.select + 9
+    // 下
+    document.getElementsByTagName('input')[0].blur();
+  } else if (key == 'ArrowLeft') {
+    n = data.value.select - 1;
+    // 左
+    document.getElementsByTagName('input')[0].blur();
+  } else if (key == 'ArrowRight') {
+    n = data.value.select + 1;
+    // 右
+    document.getElementsByTagName('input')[0].blur();
+  }
+  if (n !=null && n >= 0 && n <= 80) {
+    data.value.select = n;
+    refreshHighlight();
+  }
+
 }
 
 
