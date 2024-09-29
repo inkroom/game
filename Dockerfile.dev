@@ -9,6 +9,6 @@ ARG NODE_MIRROR=https://registry.npmmirror.com/
 ENV PATH ${PATH}:${NODE_HOME}/node-v${NODE_VERSION}-${NODE_DIST}/bin
 RUN apt update -y && mkdir -p ${NODE_HOME} && wget -q https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${NODE_DIST}.tar.xz && tar -xJf node-v${NODE_VERSION}-${NODE_DIST}.tar.xz -C ${NODE_HOME} && rm -rf node-v${NODE_VERSION}-${NODE_DIST}.tar.xz \
   && npm config set registry ${NODE_MIRROR} \
-  && npm i -g nrm 
+  && npm i -g nrm && echo "export PATH=${PATH}" >> /root/.zshrc
 COPY . /project
 WORKDIR /project
