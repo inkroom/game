@@ -484,10 +484,12 @@ function check() {
  */
 function checkError(index, number) {
 
-  console.log('dd', number, data.value.solution[index])
+  console.log('dd', number, data.value.solution[index],JSON.stringify(data.value.number));
   if (number != data.value.solution[index]) {
     data.value.number[index].mistake = true;
   }
+  console.log('dd', number, data.value.solution[index],JSON.stringify( data.value.number));
+
 }
 
 /**
@@ -683,12 +685,13 @@ function newGame(first) {
         noting: false,
         toBeSelected: Array(9).fill(0),
         number: Array(81).fill({
+        }).map(_=>({
           type: 'null', // 状态，null 默认，什么都没有。select设置了数字，note标记
           value: null,
           notes: [],
           editable: true,
           mistake: false
-        })
+        }))
       })
       if (first) {
 
