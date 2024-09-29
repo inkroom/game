@@ -262,12 +262,13 @@ function drawBorder(ctx) {
   ctx.fillRect(0, 0, props.size, props.size);
   ctx.fill();
 
-  const width = [2.5, 1, 1, 2.5, 1, 1, 2.5, 1, 1, 2.5, 1, 1, 2.5];
-
+  const width = [2, 1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2];
+  const color = ['#cbd1dc','#344861']
   // 边框
-  ctx.strokeStyle = "black";
+  
   for (let i = 0; i < 10; i++) {
     ctx.lineWidth = width[i];
+    ctx.strokeStyle = color[width[i] - 1];
     ctx.beginPath();
     ctx.moveTo(margin - width[i] / 2, margin + i * boxSize);
     ctx.lineTo(boxSize * 9 + width[i] / 2 + margin, margin + i * boxSize);
@@ -484,11 +485,9 @@ function check() {
  */
 function checkError(index, number) {
 
-  console.log('dd', number, data.value.solution[index],JSON.stringify(data.value.number));
   if (number != data.value.solution[index]) {
     data.value.number[index].mistake = true;
   }
-  console.log('dd', number, data.value.solution[index],JSON.stringify( data.value.number));
 
 }
 
@@ -548,7 +547,6 @@ function press(key) {
   if (key >= '1' && key <= '9') {// 小键盘 和顶部键盘都兼容
     n = key - '1' + 1;
     if (data.value.select != null) {
-      console.log('标记状态', data.value.noting)
       if (data.value.noting) {// 打开标记
         let index = data.value.number[data.value.select].notes.findIndex(s => s == n)
         if (index != -1) {
@@ -674,7 +672,6 @@ function newGame(first) {
   ajax.get('/sudoku/new')
     .then(JSON.parse)
     .then(res => {
-      console.log(res);
       delete res['mission'];
       delete res['id'];
       delete res['win_rate'];
