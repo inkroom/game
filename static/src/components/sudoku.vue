@@ -623,7 +623,15 @@ function keydownEvent(e) {
   if(e.target.tagName!='INPUT'){
     press(e.key);
   }
-  
+  if(e.keyCode==110){
+    // .
+    setTimeout(()=>{
+// 不加延迟 会输入一个 .
+      document.getElementsByTagName('input')[0].focus();
+      caluRes.value='';
+      calu.value='';
+    },10);
+  }
 }
 
 
@@ -717,9 +725,6 @@ function newGame(first) {
     })
 }
 
-function calculateChange(v){
-  caluRes.value = calculate(calu.value);
-}
 watch(calu,(nv,ov)=>{
   try{
     caluRes.value = calculate(nv);
