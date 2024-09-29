@@ -3,6 +3,7 @@
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { getDashed } from '../util/sudoku'
 import ajax from '../util/ajax'
+import calculate from '../util/calculate';
 
 const props = defineProps({
   size: { type: Number, default: 450 }
@@ -27,6 +28,10 @@ if (saved != null && saved != '') {
   });
   newGame(true);
 }
+
+let calu = ref('');
+let caluRes = ref(0);
+
 // const data = ref(sd);
 const margin = 3;// 四周边距
 const normalizedSize = computed(() => props.size + margin * 2)
@@ -615,7 +620,10 @@ function press(key) {
 
 
 function keydownEvent(e) {
-  press(e.key);
+  if(e.target.tagName!='INPUT'){
+    press(e.key);
+  }
+  
 }
 
 
@@ -709,13 +717,29 @@ function newGame(first) {
     })
 }
 
+function calculateChange(v){
+  caluRes.value = calculate(calu.value);
+}
+watch(calu,(nv,ov)=>{
+  try{
+    caluRes.value = calculate(nv);
+  }catch(e){
+
+  }
+
+})
+function inputKeydown(e){
+  if(e.keyCode==13){// enter
+    e.target.blur();
+  }
+}
 </script>
 <template>
   <div class="sudoku" :style="{ width: normalizedSize + 'px', height: normalizedSize + 'px' }">
     <canvas id="sudoku_background" :width="normalizedSize" :height="normalizedSize"></canvas>
     <canvas id="sudoku_fornt" :width="normalizedSize" :height="normalizedSize"></canvas>
-
   </div>
+  <div class="calu"><input v-model="calu" @keydown="inputKeydown" /><div>{{ caluRes }}</div></div>
   <div class="number">
     <button @click="newGame">new</button>
     <button @click="press('0')">{{ data.noting ? 'on' : 'off' }}</button>
@@ -736,6 +760,18 @@ function newGame(first) {
   }
 
 }
+.calu{
+    input{
+      background-color: white;
+      color: black;
+    }
+    div{
+      display: inline-block;
+      margin-left: 10px;
+      width: 20px;
+    }
+    color: black;
+  }
 
 .number {
   button {
