@@ -73,7 +73,10 @@ console.log("start");
 var ws;
 // var ws = new WebSocket("ws://127.0.0.1:22293/ws");
 if (process.env.NODE_ENV == 'production') {
-  ws = new WebSocket("ws://" + location.host + "/sw");
+  if (location.protocol =='https:'){
+    ws = new WebSocket("wss://" + location.host + "/sw");
+  }else
+    ws = new WebSocket("ws://" + location.host + "/sw");
 } else {
   ws = new WebSocket("ws://127.0.0.1:25895/sw");
 }
