@@ -1,5 +1,5 @@
 <script setup>
-
+import loading from './loading.vue';
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { getDashed } from '../util/sudoku'
 import ajax from '../util/ajax'
@@ -730,8 +730,10 @@ function initWatch(){
     toBeSelected(n);
   })
 }
+const isLoading = ref(false);
 
 function newGame(first) {
+  isLoading.value = true;
   ajax.get('/sudoku/new')
     .then(JSON.parse)
     .then(res => {
@@ -759,6 +761,7 @@ function newGame(first) {
 
       refreshBorder();
       refreshHighlight();
+      isLoading.value = false;
     })
 }
 
@@ -777,6 +780,7 @@ function inputKeydown(e){
 }
 </script>
 <template>
+  <loading v-if="isLoading" />
   <div class="sudoku" :style="{ width: normalizedSize + 'px', height: normalizedSize + 'px' }">
     <canvas id="sudoku_background" :width="normalizedSize" :height="normalizedSize"></canvas>
     <canvas id="sudoku_fornt" :width="normalizedSize" :height="normalizedSize"></canvas>
