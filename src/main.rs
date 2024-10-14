@@ -134,7 +134,11 @@ async fn user_message(my_id: usize, msg: Message) {
         return;
     };
 
-    let new_msg = format!("{}", msg);
+    let mut new_msg = format!("{}", msg);
+
+    if new_msg.contains("ping"){
+        new_msg = String::from(r#"{"type":"pong"}"#)
+    }
 
     // New message from this user, send it to everyone else (except same uid)...
     for (&uid, tx) in ONLINE_USERS.read().await.iter() {

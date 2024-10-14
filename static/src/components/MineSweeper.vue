@@ -91,6 +91,11 @@ ws.onopen = () => {
   if (mine == null) {
     reStart();
   }
+  heartBeat.value = setInterval(() => {
+      window.sw.send(JSON.stringify({
+          type: "ping", 
+      }));
+  }, 5000);
 };
 
 
