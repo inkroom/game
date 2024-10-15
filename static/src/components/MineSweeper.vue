@@ -62,7 +62,9 @@ const isConnect = ref(true);
 const isEnd = ref(false);
 // 一维数组，存储格子状态，-1 默认 0打开无数字，1-8 显示数字，-2雷 -3棋子
 const mines = ref([]);
-const selectedMineCount = ref(0);
+const selectedMineCount = computed(()=>{
+  return mines.value.filter(s=>s==-3).length;
+});
 const heartBeat = ref(-1);
 const count = ref(1);
 
@@ -198,10 +200,8 @@ function onMine(index) {
 function onFlag(index, type) {
   console.log('onFlag', index, type);
   if (type == 1) {
-    selectedMineCount.value++;
     mines.value[index] = -3;
   } else {
-    selectedMineCount.value--;
     mines.value[index] = -1;
   }
 }
