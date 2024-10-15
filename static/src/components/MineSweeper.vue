@@ -313,6 +313,10 @@ function handleLeftClickReal(index) {
 };
 
 function handleRightClick(index) {
+  if(mines.value[index] >=0 ){
+    // 已打开，不做操作
+    return;
+  }
   window.sw.send(JSON.stringify({
     type: "handleRightClick", index
   }));
