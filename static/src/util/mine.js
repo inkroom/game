@@ -75,6 +75,11 @@ class Mine {
         return this.squares.map(s => s.type == 'mine' ? 1 : 0);
     }
 
+    getZero() {
+        return this.squares.map(s => s.type == 'number' && s.value == 0 ? 0 : 1);
+    }
+
+
     build(mine) {
         let rn = [];
         for (let i = 0; i < mine.length; i++) {

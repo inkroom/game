@@ -266,7 +266,7 @@ function init(width, height, mineCount) {
 
   // 随机开局
 
-  let m = mine.getMines();
+  let m = mine.getZero();
   console.log('ope ran', m, m.length);
   for (; ;) {
     let ind = r(0, m.length);
