@@ -142,6 +142,31 @@ class Mine {
 
         );
     }
+
+    // 找某个方格周围的格子
+    getAround(index){
+        let result = [
+            index - this.tr - 1,// 左上角
+            index - this.tr,// 正上方
+            index - this.tr + 1,// 右上角
+            index - 1, // 左方
+            index + 1,// 右方
+            index + this.tr - 1,// 左下角
+            index + this.tr, // 正下方
+            index + this.tr + 1,// 右下方
+        ];
+
+        let x = this._getX(index);
+        let y = this._getY(index);
+
+        return result.filter(s => s >= 0 && s < this._count 
+            // 要求 周围格子 的x和y不能和中心格子差值不能超过1
+            && Math.abs(this._getX(s) - x) <= 1
+            && Math.abs(this._getY(s) - y) <= 1
+
+        );
+    }
+
     // 更新所有的数字
     updateNum() {
 
@@ -156,6 +181,100 @@ class Mine {
 
             }
         }
+    }
+    /**
+     * 打开周围的格子
+     * @param {number} index 下标
+     */
+    openGround(index){
+        let This = this;
+        function getAllZero(zeroIndex) {
+            var around = This.getAround(zeroIndex); // 找到了周围N个格子
+            for (var i = 0; i < around.length; i++) {
+
+                // 直接打开，可能是0，不重要
+                This.onOpen(around[i], This.squares[around[i]].value);
+                // This.tds[x][y].className = cl[This.squares[x][y].value];
+
+                if (This.squares[around[i]].value == 0) {
+                    // 如果以某个格子为中心，找到的某个格子为零，那就接着调用（递归）
+                    if (!This.squares[around[i]].check) {
+                        // 给对应的td 添加一条属性，如果找过的话，这个值就为true，下一次就不会再找了，防止函数调用栈出问题
+                        This.squares[around[i]].check = true;
+                        getAllZero(around[i]);
+                    }
+
+                } else {
+                    // 如果以某个格子为中心找到的四周的值不为零，就把数字显示出来
+
+                    // This.tds[x][y].innerHTML = This.squares[x][y].value;
+                }
+            }
+
+        }
+
+        let box = this.getAround(index);
+
+        let open = [];
+
+        for(let i =0;i<box.length;i++){
+            if (this.squares[box[i]].flag){
+                continue;
+            }
+            if(this.squares[box[i]].type=='number'){
+                open.push(box[i]);
+            }else if(this.squares[box[i]].type=='mine'){
+                // 用户点击的是雷
+                this.gameOver(index);
+                this.onFail();
+                open = [];
+                break;
+            }
+        }
+
+        open.forEach(v=>{
+            this.onOpen(v,this.squares[v].value);
+            if(this.squares[v].value==0){
+                this.getAllZero(v);
+            }
+        })
+
+    }
+    /*
+                        递归思路：
+                        1.显示自己
+                        2.查找四周
+                            1) 显示四周（如果四周的值不为零，那就显示到这，不需要再找了）
+                            2）如果值为零了
+                                a.显示自己
+                                b.找四周（如果四周的值不为零，那就显示到这，不需要再找了）
+                                    I.显示自己
+                                    II.找四周（如果四周的值不为零，那就显示到这，不需要再找了）
+                                        。。。。。。
+                     */
+    getAllZero(zeroIndex) {
+        var around = this.getAround(zeroIndex); // 找到了周围N个格子
+        for (var i = 0; i < around.length; i++) {
+
+            // 直接打开，可能是0，不重要
+            this.onOpen(around[i], this.squares[around[i]].value);
+            // This.tds[x][y].className = cl[This.squares[x][y].value];
+
+            if (this.squares[around[i]].value == 0) {
+                // 如果以某个格子为中心，找到的某个格子为零，那就接着调用（递归）
+                if (!this.squares[around[i]].check) {
+                    // 给对应的td 添加一条属性，如果找过的话，这个值就为true，下一次就不会再找了，防止函数调用栈出问题
+                    this.squares[around[i]].check = true;
+                    this.getAllZero(around[i]);
+                }
+
+            } else {
+                // 如果以某个格子为中心找到的四周的值不为零，就把数字显示出来
+
+                // This.tds[x][y].innerHTML = This.squares[x][y].value;
+            }
+        }
+
     }
     click(index, type) {
 
@@ -178,44 +297,10 @@ class Mine {
 
                 // 点到了数字零
                 if (curSquare.value == 0) {
-                    /*
-                        递归思路：
-                        1.显示自己
-                        2.查找四周
-                            1) 显示四周（如果四周的值不为零，那就显示到这，不需要再找了）
-                            2）如果值为零了
-                                a.显示自己
-                                b.找四周（如果四周的值不为零，那就显示到这，不需要再找了）
-                                    I.显示自己
-                                    II.找四周（如果四周的值不为零，那就显示到这，不需要再找了）
-                                        。。。。。。
-                     */
+                    
 
-                    function getAllZero(zeroIndex) {
-                        var around = This.getAround(zeroIndex); // 找到了周围N个格子
-                        for (var i = 0; i < around.length; i++) {
-
-                            // 直接打开，可能是0，不重要
-                            This.onOpen(around[i], This.squares[around[i]].value);
-                            // This.tds[x][y].className = cl[This.squares[x][y].value];
-
-                            if (This.squares[around[i]].value == 0) {
-                                // 如果以某个格子为中心，找到的某个格子为零，那就接着调用（递归）
-                                if (!This.squares[around[i]].check) {
-                                    // 给对应的td 添加一条属性，如果找过的话，这个值就为true，下一次就不会再找了，防止函数调用栈出问题
-                                    This.squares[around[i]].check = true;
-                                    getAllZero(around[i]);
-                                }
-
-                            } else {
-                                // 如果以某个格子为中心找到的四周的值不为零，就把数字显示出来
-
-                                // This.tds[x][y].innerHTML = This.squares[x][y].value;
-                            }
-                        }
-
-                    }
-                    getAllZero(index);
+                    
+                    this.getAllZero(index);
                 }
 
             } else {

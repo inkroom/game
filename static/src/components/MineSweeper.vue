@@ -309,6 +309,15 @@ function handleLeftClickReal(index) {
   if (isEnd.value) {
     return;
   }
+  console.log('openGround1',mines.value[index])
+  if (mines.value[index]>=0){
+    console.log('openGround')
+    // 已经被打开了，尝试打开周围的格子
+    mine.openGround(index);
+    return;
+  }
+
+
   mine.click(index, 1);
 };
 
