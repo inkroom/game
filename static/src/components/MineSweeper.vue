@@ -208,7 +208,7 @@ function onFlag(index, type) {
 
 function onSuccess() {
   isEnd.value = true;
-  dialog.error({
+  dialog.success({
     title: 'win',
     content: 'win',
     positiveText: 'ok',
@@ -291,6 +291,7 @@ function initReal(width, height, new_mines) {
   // selectedMineCount.value = 0;
   // console.log("initReal", openStatus.value, markStatus.value);
   isEnd.value = false;
+  dialog.destroyAll();
   if (mine != null) {
     mine.build(new_mines);
   }
