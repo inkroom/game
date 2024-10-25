@@ -290,6 +290,7 @@ function initReal(width, height, new_mines) {
   // markStatus.value = new Array(width * height).fill(0);
   // selectedMineCount.value = 0;
   // console.log("initReal", openStatus.value, markStatus.value);
+  isEnd.value = false;
   if (mine != null) {
     mine.build(new_mines);
   }
