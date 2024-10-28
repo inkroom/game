@@ -5,6 +5,7 @@ import { getDashed } from '../util/sudoku'
 import ajax from '../util/ajax'
 import calculate from '../util/calculate';
 
+const isLoading = ref(false);
 const props = defineProps({
   size: { type: Number, default: 450 }
 });
@@ -730,7 +731,7 @@ function initWatch(){
     toBeSelected(n);
   })
 }
-const isLoading = ref(false);
+
 
 function newGame(first) {
   isLoading.value = true;
